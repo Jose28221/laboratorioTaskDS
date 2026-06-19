@@ -9,6 +9,8 @@ urlpatterns = [
     # Rutas de Autenticación
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-
     path('dashboard/', tareas_views.dashboard, name='dashboard'),
+    path('nueva-tarea/', tareas_views.crear_tarea, name='crear_tarea'),
+
+    
 ]

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
-
+from .forms import TareaForm
 
 # Funcion auxiliar para comprobar si el usuario es admin
 
@@ -19,3 +19,16 @@ def dashboard(request):
 
 def crear_proyecto(request):
     return HttpResponse("Bienvenido Admin. Aquí podrás crear proyectos)")
+
+@login_required
+def crear_tarea(request):
+    if request.method == 'POST':
+        # El usuario hizo click en guardar tarea
+        form = TareaForm(request.POST)
+        if form.is_valid():
+            form.save() # Guarda la tarea en la base de datos
+            return redirect('dashboard') # Redirige al dashboard después de guardar
+    else:
+        form = TareaForm()
+        
+    return render(request, 'crear_tarea.html', {'form': form})
