@@ -11,6 +11,6 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('dashboard/', tareas_views.dashboard, name='dashboard'),
     path('nueva-tarea/', tareas_views.crear_tarea, name='crear_tarea'),
+    path('crear-proyecto/', tareas_views.crear_proyecto, name='crear_proyecto'),
 
-    
 ]

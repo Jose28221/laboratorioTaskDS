@@ -1,13 +1,26 @@
 <h2>Bienvenido a TaskFlow, {{ usuario.username }}</h2>
 
-{% if request.user.groups.all.0.name == 'Admin' %}
+{% if es_admin %}
     <p> Tienes permisos de administrador.</p>
 {% else %}
     <p> Eres un miembro. Aquí veras tus tareas asignadas.</p>
 {% endif %}
 
+
+<h3>Mis tareas</h3>
+<ul>
+    {% for tarea in tareas %}
+        <li>
+            {{ tarea.titulo}}
+            {% if tarea.completada %} ✅ {% else %} ❌ {% endif %}
+            - {{ tarea.proyecto.nombre }}
+        </li>
+    {% empty %}
+        <li>No tienes tareas asignadas.</li>
+    {% endfor %}
+</ul>
+
 <form method="post" action="{% url 'logout' %}">
     {% csrf_token %}
     <button type="submit">Cerrar Sesión</button>
 </form>
-

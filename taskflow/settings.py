@@ -132,3 +132,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'dashboard'
 # Redirigir aqui despues de cerrar sesion
 LOGOUT_REDIRECT_URL = 'login'
+
+LOGIN_URL = 'login'  # Redirige al login si el usuario no está autenticado
