@@ -1,23 +1,53 @@
 from django import forms
 from .models import Proyecto, Tarea
 
+
 class TareaForm(forms.ModelForm):
     class Meta:
         model = Tarea
         fields = ['titulo', 'descripcion', 'proyecto', 'asignada_a']
-        # No agregamos 'completada' porque por defecto será False al crear una nueva tarea. 
+        # No agregamos 'completada' porque por defecto será False al crear una nueva tarea.
         widgets = {
-            'titulo': forms.TextInput(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
-            'proyecto': forms.Select(attrs={'class': 'form-control'}),
-            'asignada_a': forms.Select(attrs={'class': 'form-control'}),
+            'titulo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Título de la tarea',
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Descripción detallada de la tarea...',
+                'rows': 4,
+            }),
+            'proyecto': forms.Select(attrs={
+                'class': 'form-control',
+            }),
+            'asignada_a': forms.Select(attrs={
+                'class': 'form-control',
+            }),
         }
+        labels = {
+            'titulo': 'Título',
+            'descripcion': 'Descripción',
+            'proyecto': 'Proyecto',
+            'asignada_a': 'Asignada a',
+        }
+
 
 class ProyectoForm(forms.ModelForm):
     class Meta:
         model = Proyecto
         fields = ['nombre', 'descripcion']
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),            
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre del proyecto',
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Descripción del proyecto...',
+                'rows': 4,
+            }),
+        }
+        labels = {
+            'nombre': 'Nombre del Proyecto',
+            'descripcion': 'Descripción',
         }

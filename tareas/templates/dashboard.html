@@ -1,26 +1,415 @@
-<h2>Bienvenido a TaskFlow, {{ usuario.username }}</h2>
+{% extends 'base.html' %}
 
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    /* STATS GRID */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--stat-color-a), var(--stat-color-b));
+    }
+
+    .stat-card:hover {
+        border-color: var(--border-hover);
+        transform: translateY(-2px);
+    }
+
+    .stat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+    }
+
+    /* QUICK ACTIONS */
+    .quick-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    /* TASKS TABLE */
+    .tasks-container {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .tasks-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .tasks-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .task-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.15s ease;
+    }
+
+    .task-item:last-child {
+        border-bottom: none;
+    }
+
+    .task-item:hover {
+        background: var(--bg-card-hover);
+    }
+
+    .task-check {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        border: 2px solid var(--border-hover);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .task-item.done .task-check {
+        background: var(--accent-success);
+        border-color: var(--accent-success);
+        color: white;
+    }
+
+    .task-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .task-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .task-item.done .task-title {
+        text-decoration: line-through;
+        color: var(--text-muted);
+    }
+
+    .task-meta {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .task-project-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        background: rgba(99, 102, 241, 0.1);
+        color: #818cf8;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .task-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-complete {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        font-family: inherit;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-complete.pending {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-complete.pending:hover {
+        background: rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-complete.done {
+        background: rgba(100, 116, 139, 0.1);
+        color: var(--text-muted);
+        border: 1px solid rgba(100, 116, 139, 0.2);
+    }
+
+    .btn-complete.done:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--text-muted);
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    /* PROJECTS SECTION */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .project-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        transition: all 0.2s ease;
+    }
+
+    .project-card:hover {
+        border-color: rgba(99, 102, 241, 0.3);
+        background: var(--bg-card-hover);
+        transform: translateY(-2px);
+    }
+
+    .project-icon {
+        width: 38px;
+        height: 38px;
+        background: rgba(99, 102, 241, 0.15);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .project-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        margin-bottom: 0.3rem;
+    }
+
+    .project-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+    }
+
+    .greeting {
+        margin-bottom: 2rem;
+    }
+
+    .greeting-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .greeting-title span {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .greeting-sub {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<!-- GREETING -->
+<div class="greeting">
+    <h1 class="greeting-title">
+        Hola, <span>{{ usuario.username }}</span> 👋
+    </h1>
+    <p class="greeting-sub">
+        {% if es_admin %}Administrador del sistema &mdash; {% endif %}
+        Aquí está el resumen de tus tareas
+    </p>
+</div>
+
+<!-- STATS -->
+{% with total=tareas|length completadas=0 %}
+<div class="stats-grid">
+    <div class="stat-card" style="--stat-color-a: #6366f1; --stat-color-b: #8b5cf6;">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value">{{ tareas|length }}</div>
+        <div class="stat-label">Tareas Totales</div>
+    </div>
+    <div class="stat-card" style="--stat-color-a: #10b981; --stat-color-b: #059669;">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">
+            {% with count=0 %}
+            {{ tareas|length }}
+            {% endwith %}
+        </div>
+        <div class="stat-label">Completadas</div>
+    </div>
+    <div class="stat-card" style="--stat-color-a: #f59e0b; --stat-color-b: #d97706;">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value">{{ proyectos|length }}</div>
+        <div class="stat-label">Proyectos</div>
+    </div>
+</div>
+{% endwith %}
+
+<!-- QUICK ACTIONS (solo admin) -->
 {% if es_admin %}
-    <p> Tienes permisos de administrador.</p>
-{% else %}
-    <p> Eres un miembro. Aquí veras tus tareas asignadas.</p>
+<div class="quick-actions">
+    <a href="{% url 'crear_tarea' %}" id="btn-nueva-tarea" class="btn btn-primary">
+        ✚ Nueva Tarea
+    </a>
+    <a href="{% url 'crear_proyecto' %}" id="btn-nuevo-proyecto" class="btn btn-outline">
+        📁 Nuevo Proyecto
+    </a>
+</div>
 {% endif %}
 
+<!-- TASKS LIST -->
+<div class="tasks-container">
+    <div class="tasks-header">
+        <div>
+            <div class="tasks-title">Mis Tareas</div>
+        </div>
+        <span class="badge {% if tareas %}badge-pending{% else %}badge-success{% endif %}">
+            {{ tareas|length }} tarea{{ tareas|length|pluralize:"s" }}
+        </span>
+    </div>
 
-<h3>Mis tareas</h3>
-<ul>
-    {% for tarea in tareas %}
-        <li>
-            {{ tarea.titulo}}
-            {% if tarea.completada %} ✅ {% else %} ❌ {% endif %}
-            - {{ tarea.proyecto.nombre }}
-        </li>
-    {% empty %}
-        <li>No tienes tareas asignadas.</li>
-    {% endfor %}
-</ul>
+    {% if tareas %}
+        {% for tarea in tareas %}
+        <div class="task-item {% if tarea.completada %}done{% endif %}">
+            <div class="task-check">
+                {% if tarea.completada %}✓{% endif %}
+            </div>
+            <div class="task-info">
+                <div class="task-title">{{ tarea.titulo }}</div>
+                <div class="task-meta">
+                    <span class="task-project-tag">📁 {{ tarea.proyecto.nombre }}</span>
+                    {% if tarea.descripcion %}
+                    &nbsp;·&nbsp; {{ tarea.descripcion|truncatechars:60 }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="task-actions">
+                <a
+                    href="{% url 'completar_tarea' tarea.id %}"
+                    id="btn-completar-{{ tarea.id }}"
+                    class="btn-complete {% if tarea.completada %}done{% else %}pending{% endif %}"
+                >
+                    {% if tarea.completada %}
+                        ↩ Desmarcar
+                    {% else %}
+                        ✓ Completar
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🎉</div>
+            <div class="empty-title">¡No tienes tareas pendientes!</div>
+            <p>No hay tareas asignadas a tu usuario en este momento.</p>
+        </div>
+    {% endif %}
+</div>
 
-<form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit">Cerrar Sesión</button>
-</form>
+<!-- PROJECTS SECTION -->
+{% if proyectos %}
+<div style="margin-top: 2rem;">
+    <div class="section-header">
+        <div>
+            <div class="section-title">Proyectos</div>
+            <div class="section-subtitle">Todos los proyectos activos</div>
+        </div>
+    </div>
+    <div class="projects-grid">
+        {% for proyecto in proyectos %}
+        <div class="project-card">
+            <div class="project-icon">📁</div>
+            <div class="project-name">{{ proyecto.nombre }}</div>
+            {% if proyecto.descripcion %}
+            <div class="project-desc">{{ proyecto.descripcion|truncatechars:80 }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,9 +1,117 @@
-<h2>Crear Nuevo Proyecto</h2>
+{% extends 'base.html' %}
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Crear Proyecto</button>
-</form>
+{% block title %}Nuevo Proyecto{% endblock %}
 
-<a href="{% url 'dashboard' %}">Cancelar</a>
+{% block content %}
+<style>
+    .form-page {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+        transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--text-primary); }
+
+    .form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        padding: 1.5rem 1.75rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(99, 102, 241, 0.04);
+    }
+
+    .form-card-icon {
+        width: 44px;
+        height: 44px;
+        background: rgba(99, 102, 241, 0.15);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .form-card-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .form-card-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 0.2rem;
+    }
+
+    .form-card-body {
+        padding: 1.75rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+    }
+</style>
+
+<div class="form-page">
+    <a href="{% url 'dashboard' %}" class="back-link">← Volver al Dashboard</a>
+
+    <div class="form-card">
+        <div class="form-card-header">
+            <div class="form-card-icon">📁</div>
+            <div class="form-card-title">Nuevo Proyecto</div>
+            <div class="form-card-subtitle">Completa los datos para crear un nuevo proyecto</div>
+        </div>
+        <div class="form-card-body">
+            <form method="post" id="form-proyecto" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="form-label">
+                        {{ field.label }}
+                        {% if field.field.required %}<span style="color: #6366f1;">*</span>{% endif %}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                        <div class="alert alert-error" style="margin-top: 0.5rem; padding: 8px 12px; font-size: 0.8rem;">
+                            ⚠️ {{ error }}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="form-actions">
+                    <button type="submit" id="btn-guardar-proyecto" class="btn btn-primary">
+                        💾 Guardar Proyecto
+                    </button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

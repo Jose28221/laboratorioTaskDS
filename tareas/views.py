@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from .forms import TareaForm, ProyectoForm
@@ -6,19 +6,22 @@ from .models import Proyecto, Tarea
 
 
 # Funcion auxiliar para comprobar si el usuario es admin
-
 def es_admin(user):
     return user.groups.filter(name='Admin').exists()
 
-@login_required # si no está logueado, lo redirige al login
+
+@login_required  # si no está logueado, lo redirige al login
 def dashboard(request):
     # pasamos el usuario logueado al HTML
     es_admin = request.user.is_superuser or request.user.groups.filter(name='Admin').exists()
     tareas = Tarea.objects.filter(asignada_a=request.user)
-    return render(request, 'dashboard.html', 
+    proyectos = Proyecto.objects.all()
+    return render(request, 'dashboard.html',
                   {'usuario': request.user,
                    'es_admin': es_admin,
-                   'tareas': tareas})
+                   'tareas': tareas,
+                   'proyectos': proyectos})
+
 
 @login_required
 def crear_proyecto(request):
@@ -26,11 +29,12 @@ def crear_proyecto(request):
         # El usuario hizo click en guardar proyecto
         form = ProyectoForm(request.POST)
         if form.is_valid():
-            form.save() # Guarda el proyecto en la base de datos
-            return redirect('dashboard') # Redirige al dashboard después de guardar
+            form.save()  # Guarda el proyecto en la base de datos
+            return redirect('dashboard')  # Redirige al dashboard después de guardar
     else:
-        form = ProyectoForm()        
+        form = ProyectoForm()
     return render(request, 'crear_proyecto.html', {'form': form})
+
 
 @login_required
 def crear_tarea(request):
@@ -38,9 +42,18 @@ def crear_tarea(request):
         # El usuario hizo click en guardar tarea
         form = TareaForm(request.POST)
         if form.is_valid():
-            form.save() # Guarda la tarea en la base de datos
-            return redirect('dashboard') # Redirige al dashboard después de guardar
+            form.save()  # Guarda la tarea en la base de datos
+            return redirect('dashboard')  # Redirige al dashboard después de guardar
     else:
         form = TareaForm()
-        
+
     return render(request, 'crear_tarea.html', {'form': form})
+
+
+@login_required
+def completar_tarea(request, tarea_id):
+    """Marca o desmarca una tarea como completada"""
+    tarea = get_object_or_404(Tarea, id=tarea_id, asignada_a=request.user)
+    tarea.completada = not tarea.completada
+    tarea.save()
+    return redirect('dashboard')

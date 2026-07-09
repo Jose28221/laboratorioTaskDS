@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TaskFlow{% endblock %} | Sistema de Gestión de Tareas</title>
+    <meta name="description" content="TaskFlow - Gestiona tus proyectos y tareas de forma eficiente">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #0d1427;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-card-hover: rgba(255, 255, 255, 0.07);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.18);
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-lg: 16px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            background-image:
+                radial-gradient(ellipse at 20% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: rgba(13, 20, 39, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-card-hover);
+        }
+
+        .nav-link.active {
+            color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .nav-link.btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-link.btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .user-avatar {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+        }
+
+        .btn-danger-outline {
+            background: transparent;
+            color: var(--accent-danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger-outline:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* FORMS */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.05);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        select.form-control option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* ALERTS / MESSAGES */
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+        }
+
+        /* SECTION HEADER */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.12);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+
+        .badge-admin {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-primary);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* DIVIDER */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1.5rem 0;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 4rem;
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.4s ease forwards;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .navbar-inner { padding: 0; }
+            .main-content { padding: 1rem; }
+            .navbar { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<nav class="navbar">
+    <div class="navbar-inner">
+        <a href="{% url 'dashboard' %}" class="navbar-brand">
+            <div class="brand-icon">⚡</div>
+            TaskFlow
+        </a>
+        <ul class="navbar-nav">
+            <li>
+                <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    🏠 Dashboard
+                </a>
+            </li>
+            {% if user.is_superuser or user.groups.all|length > 0 %}
+            <li>
+                <a href="{% url 'crear_proyecto' %}" class="nav-link">
+                    📁 Nuevo Proyecto
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'crear_tarea' %}" class="nav-link btn-primary">
+                    ✚ Nueva Tarea
+                </a>
+            </li>
+            {% endif %}
+            <li>
+                <div class="user-badge">
+                    <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
+                    {{ user.username }}
+                    {% if user.is_superuser %}<span class="badge badge-admin">Admin</span>{% endif %}
+                </div>
+            </li>
+            <li>
+                <a href="{% url 'logout' %}" class="nav-link">🚪 Salir</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+{% endif %}
+
+<main class="main-content fade-in">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-error">⚠️ {{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <p>⚡ TaskFlow &mdash; Sistema de Gestión de Tareas &mdash; Desarrollo de Software</p>
+</footer>
+
+</body>
+</html>
